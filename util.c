@@ -47,6 +47,8 @@ void sendPacket(packet_t *pkt, int destination, int tag)
     if (freepkt) free(pkt);
 }
 
+//DUPA XD
+
 request_t noRequest() {
     request_t r;
     r.w = 0;
