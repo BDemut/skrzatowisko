@@ -1,6 +1,7 @@
 #include "main.h"
 #include "watek_glowny.h"
 #include "watek_komunikacyjny.h"
+#include "util.h"
 
 int W = 20;
 int K = 5;
