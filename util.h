@@ -33,5 +33,6 @@ void sendPacket(packet_t *pkt, int destination, int tag);
 request_t noRequest();
 
 void addToQueue(request_t req);
+int removeFromQueue(int id);
 void debugQueue();
 #endif

@@ -83,3 +83,22 @@ void addToQueue(request_t req) {
         }
     }
 }
+
+// true jesli usunieto request, false jesli nie bylo requesta o danym id
+int removeFromQueue(int id) {
+    int requestRemoved = FALSE;
+    for (int i = 0; i < size; i++) {
+        if (requestQueue[i].id == id) {
+            requestQueue[i] = noRequest();
+            requestRemoved = TRUE;
+        } 
+
+        if (requestRemoved) {
+            if (i < size-1)
+                requestQueue[i] = requestQueue[i+1];
+            else 
+                requestQueue[i] = noRequest();
+        }
+    }
+    return requestRemoved;
+}

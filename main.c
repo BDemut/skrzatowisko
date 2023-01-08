@@ -89,6 +89,8 @@ int main(int argc, char **argv)
     addToQueue(r3);
     addToQueue(r4);
 
+    removeFromQueue(1);
+
     debugQueue();
     return 0;
     pthread_create( &threadKom, NULL, startKomWatek , 0);
