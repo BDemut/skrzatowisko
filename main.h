@@ -14,12 +14,13 @@
 #define FALSE 0
 #define ROOT 0
 
-extern int W;
-extern int K;
+extern const int W;
+extern const int K;
 extern int rank;
 extern int size;
 extern unsigned int* timestampVector;
 extern request_t* requestQueue;
+extern unsigned int C;
 typedef enum {REQ, ACK, RELEASE} message_t;
 extern message_t stan;
 extern pthread_t threadKom, threadMon;

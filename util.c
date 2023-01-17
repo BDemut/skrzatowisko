@@ -29,7 +29,7 @@ void inicjuj_typ_pakietu()
     MPI_Aint     offsets[NITEMS]; 
     offsets[0] = offsetof(packet_t, ts);
     offsets[1] = offsetof(packet_t, src);
-    offsets[2] = offsetof(packet_t, data);
+    offsets[2] = offsetof(packet_t, w);
 
     MPI_Type_create_struct(NITEMS, blocklengths, offsets, typy, &MPI_PAKIET_T);
 
@@ -42,12 +42,51 @@ void sendPacket(packet_t *pkt, int destination, int tag)
     int freepkt=0;
     if (pkt==0) { pkt = malloc(sizeof(packet_t)); freepkt=1;}
     pkt->src = rank;
+    C++;
+    pkt->ts = C;
     MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
-    debug("Wysyłam %s do %d\n", tag2string( tag), destination);
+    switch ( tag ) {
+        case ACK: 
+                //debug("Dostałem pakiet od %d z danymi %d",pakiet.src, pakiet.w);
+        break;
+        case RELEASE: 
+                //debug("Dostałem pakiet od %d z danymi %d",pakiet.src, pakiet.data);
+        break;
+        case REQ: 
+                debug("Wysylam request do %d z timestamp %u, o %d wstazek", destination, pkt->ts, pkt->w);
+        break;
+        default:
+        break;
+    }
     if (freepkt) free(pkt);
 }
 
-//DUPA XD
+void recievePacket()
+{
+    packet_t pakiet;
+    MPI_Status status;
+    MPI_Recv( &pakiet, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+    //mutex na c?
+    timestampVector[pakiet.src] = pakiet.ts;
+    if (pakiet.ts > C) {
+        C = pakiet.ts;
+    }
+    C++;
+    switch ( status.MPI_TAG ) {
+        case ACK: 
+                //debug("Dostałem pakiet od %d z danymi %d",pakiet.src, pakiet.w);
+        break;
+        case RELEASE: 
+                //debug("Dostałem pakiet od %d z danymi %d",pakiet.src, pakiet.data);
+        break;
+        case REQ: 
+                debug("Dostałem request od %d z timestamp %u, o %d wstazek", pakiet.src, pakiet.ts, pakiet.w);
+
+        break;
+        default:
+        break;
+    }
+}
 
 request_t noRequest() {
     request_t r;

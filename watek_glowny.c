@@ -5,15 +5,15 @@ void mainLoop()
 {
     srandom(rank);
     int tag;
+    for (int i=0; i<3; i++) {
+        int w = random()%100;
 
-    int w = random()%100;
-
-    debug("Wysyłam REQ");
-    packet_t *pkt = malloc(sizeof(packet_t));
-    pkt->data = w;
-    tag = ACK;
-    
-    sendPacket( pkt, (rank+1)%size, tag);
+        packet_t *pkt = malloc(sizeof(packet_t));
+        pkt->w = w;
+        tag = REQ;
         
-    sleep(1);
+        sendPacket( pkt, (rank+1)%size, tag);
+            
+        sleep(1);
+    }
 }
