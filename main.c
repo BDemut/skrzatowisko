@@ -1,18 +1,14 @@
 #include "main.h"
+#include "lamport.h"
 #include "watek_glowny.h"
 #include "communication.h"
 #include "watek_komunikacyjny.h"
-#include "util.h"
 
 const int W = 20;
 const int K = 5;
 int rank, size;
 pthread_t threadKom, threadMon;
-
-unsigned int* timestampVector;
-request_t* requestQueue;
-unsigned int C = 0;
-
+MPI_Datatype MPI_PAKIET_T;
 
 void finalizuj()
 {
@@ -59,20 +55,15 @@ int main(int argc, char **argv)
     packet_t pkt;
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    timestampVector = malloc(sizeof(unsigned int) * size);
-    requestQueue = malloc(sizeof(request_t) * size);
-
-    for (int i=0; i<size; i++) {
-        requestQueue[i] = noRequest();
-        timestampVector[i] = 0;
-    }
+    initLamport(size);
+    initRequestQueue(size);
 
     pthread_create( &threadKom, NULL, startKomWatek , 0);
 
     mainLoop();
     
     for (int i=0; i<size; i++) {
-        debug("Timestamp %d: %u", i, timestampVector[i]);
+        debug("Timestamp %d: %u", i, getTimestamp(i));
     }
     debugQueue();
     finalizuj();

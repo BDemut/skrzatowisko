@@ -1,5 +1,4 @@
 #include "main.h"
-#include "util.h"
 #include "watek_komunikacyjny.h"
 #include "communication.h"
 

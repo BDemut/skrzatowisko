@@ -1,4 +1,5 @@
 #include "main.h"
+#include "lamport.h"
 #include "communication.h"
 #include "watek_glowny.h"
 
@@ -12,10 +13,21 @@ void mainLoop()
         packet_t *pkt = malloc(sizeof(packet_t));
         pkt->w = w;
         
-        sendPacket( pkt, (rank+1)%size, REQ);
-            
+        int ts = lamportEvent();
+        debug("TS: %u Wysylam request o %d wstazek", ts, w);
+        for (int i=0; i<size; i++) {
+            sendPacket( pkt, i, REQ, ts);
+        }
+        
+        while ()
+
         sleep(1);
 
-        sendPacket(0,(rank+1)%size, RELEASE);
+
+        ts = lamportEvent();
+        debug("TS: %u Wysylam release", ts);
+        for (int i=0; i<size; i++) {
+            sendPacket(0, i, RELEASE, ts);
+        }
     }
 }

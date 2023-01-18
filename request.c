@@ -1,21 +1,16 @@
+#include "request.h"
+#include <stdlib.h>
 #include "main.h"
-#include "util.h"
-MPI_Datatype MPI_PAKIET_T;
 
-struct tagNames_t{
-    const char *name;
-    int tag;
-} tagNames[] = { { "ack", ACK }, { "release", RELEASE}, { "request", REQ}};
+request_t* requestQueue;
 
-const char const *tag2string( int tag )
-{
-    for (int i=0; i <sizeof(tagNames)/sizeof(struct tagNames_t);i++) {
-	if ( tagNames[i].tag == tag )  return tagNames[i].name;
+void initRequestQueue(int size) {
+    requestQueue = malloc(sizeof(request_t) * size);
+
+    for (int i=0; i<size; i++) {
+        requestQueue[i] = noRequest();
     }
-    return "<unknown>";
 }
-/* tworzy typ MPI_PAKIET_T
-*/
 
 request_t noRequest() {
     request_t r;
@@ -71,4 +66,19 @@ int removeFromQueue(int id) {
         }
     }
     return requestRemoved;
+}
+
+int canExecuteOwnRequest() {
+    int claimedHorses = 0;
+    int claimedRibbons = 0;
+    for (int i = 0; i<size; i++) {
+        claimedHorses++;
+        claimedRibbons += requestQueue[i].w;
+
+        if (claimedHorses >= K) return FALSE;
+        if (claimedRibbons >= W) return FALSE;
+
+        if (requestQueue[i].id == rank) return TRUE;
+    }
+    return FALSE;
 }
