@@ -1,4 +1,5 @@
 #include "main.h"
+#include "communication.h"
 #include "watek_glowny.h"
 
 void mainLoop()
@@ -10,10 +11,11 @@ void mainLoop()
 
         packet_t *pkt = malloc(sizeof(packet_t));
         pkt->w = w;
-        tag = REQ;
         
-        sendPacket( pkt, (rank+1)%size, tag);
+        sendPacket( pkt, (rank+1)%size, REQ);
             
         sleep(1);
+
+        sendPacket(0,(rank+1)%size, RELEASE);
     }
 }

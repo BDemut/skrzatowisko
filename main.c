@@ -1,5 +1,6 @@
 #include "main.h"
 #include "watek_glowny.h"
+#include "communication.h"
 #include "watek_komunikacyjny.h"
 #include "util.h"
 
@@ -70,10 +71,11 @@ int main(int argc, char **argv)
 
     mainLoop();
     
-    finalizuj();
     for (int i=0; i<size; i++) {
         debug("Timestamp %d: %u", i, timestampVector[i]);
     }
+    debugQueue();
+    finalizuj();
     return 0;
 }
 
