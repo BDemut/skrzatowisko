@@ -74,35 +74,52 @@ int removeFromQueue(int id) {
     return requestRemoved;
 }
 
+request_t findRequest(int id) {
+    for (int i = 0; i< size; i++) {
+        if (requestQueue[i].id == id) {
+            return requestQueue[i];
+        }
+    }
+    return noRequest();
+}
+
+int findRequestPosition(int id) {
+    for (int i = 0; i< size; i++) {
+        if (requestQueue[i].id == id) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 int canEnter() {
     pthread_mutex_lock(&mutex);
     int claimedHorses = 0;
     int claimedRibbons = 0;
+    int dwarvesWithHigherTimestampOrBetterRequest = 0;
     int ret = FALSE;
-    int foundMyRequest = FALSE;
-    request_t myRequest;
+
+    request_t myRequest = findRequest(rank);
+    int myRequestPosition = findRequestPosition(rank);
+
+    request_t request;
+    int requestPosition;
     for (int i = 0; i<size; i++) {
-        claimedHorses++;
-        claimedRibbons += requestQueue[i].w;
+        request = findRequest(i);
+        requestPosition = findRequestPosition(i);
 
-        if (!foundMyRequest) {
-            if (claimedHorses >= K) break;
-            if (claimedRibbons >= W) break;
+        if (requestPosition <= myRequestPosition) {
+            claimedHorses++;
+            claimedRibbons += request.w;
+            dwarvesWithHigherTimestampOrBetterRequest++;
+        } else {
+            if (getTimestampOf(request.id) > myRequest.timestamp)
+                dwarvesWithHigherTimestampOrBetterRequest++;
         }
-
-        if (requestQueue[i].id == rank) {
-            foundMyRequest = TRUE;
-            myRequest = requestQueue[i];
-        }
-
-        if (foundMyRequest) {
-            if (getTimestampOf(i) < myRequest.id) break;
-        }
-
-        if (i == size-1) ret = TRUE;
     }
     pthread_mutex_unlock(&mutex);
-    return ret;
+
+    return claimedHorses <= K && claimedRibbons <= W && dwarvesWithHigherTimestampOrBetterRequest == size;
 }
 
 int hasRequest() {
