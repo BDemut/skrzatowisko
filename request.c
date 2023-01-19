@@ -108,12 +108,12 @@ int canEnter() {
         request = findRequest(i);
         requestPosition = findRequestPosition(i);
 
-        if (requestPosition <= myRequestPosition) {
+        if (requestPosition <= myRequestPosition && requestPosition != -1) {
             claimedHorses++;
             claimedRibbons += request.w;
             dwarvesWithHigherTimestampOrBetterRequest++;
         } else {
-            if (getTimestampOf(request.id) > myRequest.timestamp)
+            if (getTimestampOf(i) > myRequest.timestamp)
                 dwarvesWithHigherTimestampOrBetterRequest++;
         }
     }
