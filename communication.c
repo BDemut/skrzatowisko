@@ -52,6 +52,7 @@ void recievePacket()
                 if (!removeFromQueue(pakiet.src)) {
                     debug("Blad podczas usuwania z kolejki!");
                 } 
+                debugQueue();
         break;
         case REQ: 
                 debug("TS: %u Dostałem request od %d z timestamp %u, o %d wstazek", ts, pakiet.src, pakiet.ts, pakiet.w);
@@ -61,6 +62,7 @@ void recievePacket()
                 req.timestamp = pakiet.ts;
                 addToQueue(req);
                 sendPacket(0, pakiet.src, ACK, lamportEvent());
+                debugQueue();
 
         break;
         default:

@@ -1,5 +1,6 @@
 #include "main.h"
 #include "lamport.h"
+#include "request.h"
 #include "watek_glowny.h"
 #include "communication.h"
 #include "watek_komunikacyjny.h"
@@ -15,6 +16,8 @@ void finalizuj()
     /* Czekamy, aż wątek potomny się zakończy */
     println("czekam na wątek \"komunikacyjny\"\n" );
     pthread_join(threadKom,NULL);
+    finalizeRequestQueue();
+    finalizeLamport();
     MPI_Type_free(&MPI_PAKIET_T);
     MPI_Finalize();
 }
@@ -62,10 +65,12 @@ int main(int argc, char **argv)
 
     mainLoop();
     
+    /*
     for (int i=0; i<size; i++) {
-        debug("Timestamp %d: %u", i, getTimestamp(i));
+        debug("Timestamp %d: %u", i, getTimestampOf(i));
     }
     debugQueue();
+    */
     finalizuj();
     return 0;
 }

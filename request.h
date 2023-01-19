@@ -14,7 +14,9 @@ request_t noRequest();
 void initRequestQueue(int size);
 void addToQueue(request_t req);
 int removeFromQueue(int id);
-int canExecuteOwnRequest();
+int canEnter();
+int hasRequest();
 void debugQueue();
+void finalizeRequestQueue();
 
 #endif

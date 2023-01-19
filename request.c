@@ -3,8 +3,10 @@
 #include "main.h"
 
 request_t* requestQueue;
+pthread_mutex_t mutex;
 
 void initRequestQueue(int size) {
+    pthread_mutex_init(&mutex, NULL);
     requestQueue = malloc(sizeof(request_t) * size);
 
     for (int i=0; i<size; i++) {
@@ -27,30 +29,33 @@ void debugQueue() {
 }
 
 void addToQueue(request_t req) {
+    pthread_mutex_lock(&mutex);
     for (int i = size - 1; i>=0; i--) {
         if (requestQueue[i].id == EMPTY_ID || requestQueue[i].timestamp > req.timestamp) {
             requestQueue[i] = requestQueue[i-1];
         } else if (requestQueue[i].timestamp < req.timestamp) {
             requestQueue[i+1] = req;
-            return;
+            break;
         } else {
-            if (req.id > requestQueue[i].id) {
-                requestQueue[i+1] = req;
+            if (req.id < requestQueue[i].id) {
+                requestQueue[i] = requestQueue[i-1];
             } else {
-                requestQueue[i] = req;
+                requestQueue[i+1] = req;
+                break;
             }
-            return;
         }
 
         if (i == 0) {
             requestQueue[0] = req;
-            return;
+            break;
         }
     }
+    pthread_mutex_unlock(&mutex);
 }
 
 // true jesli usunieto request, false jesli nie bylo requesta o danym id
 int removeFromQueue(int id) {
+    pthread_mutex_lock(&mutex);
     int requestRemoved = FALSE;
     for (int i = 0; i < size; i++) {
         if (requestQueue[i].id == id) {
@@ -65,20 +70,55 @@ int removeFromQueue(int id) {
                 requestQueue[i] = noRequest();
         }
     }
+    pthread_mutex_unlock(&mutex);
     return requestRemoved;
 }
 
-int canExecuteOwnRequest() {
+int canEnter() {
+    pthread_mutex_lock(&mutex);
     int claimedHorses = 0;
     int claimedRibbons = 0;
+    int ret = FALSE;
+    int foundMyRequest = FALSE;
+    request_t myRequest;
     for (int i = 0; i<size; i++) {
         claimedHorses++;
         claimedRibbons += requestQueue[i].w;
 
-        if (claimedHorses >= K) return FALSE;
-        if (claimedRibbons >= W) return FALSE;
+        if (!foundMyRequest) {
+            if (claimedHorses >= K) break;
+            if (claimedRibbons >= W) break;
+        }
 
-        if (requestQueue[i].id == rank) return TRUE;
+        if (requestQueue[i].id == rank) {
+            foundMyRequest = TRUE;
+            myRequest = requestQueue[i];
+        }
+
+        if (foundMyRequest) {
+            if (getTimestampOf(i) < myRequest.id) break;
+        }
+
+        if (i == size-1) ret = TRUE;
     }
-    return FALSE;
+    pthread_mutex_unlock(&mutex);
+    return ret;
+}
+
+int hasRequest() {
+    pthread_mutex_lock(&mutex);
+    int ret = FALSE;
+    for (int i = 0; i< size; i++) {
+        if (requestQueue[i].id == rank) {
+            ret = TRUE;
+            break;
+        }
+    }
+    pthread_mutex_unlock(&mutex);
+    return ret;
+}
+
+void finalizeRequestQueue() {
+    free(requestQueue);
+    pthread_mutex_destroy(&mutex);
 }

@@ -4,6 +4,7 @@
 void initLamport(int size);
 int lamportEvent();
 int lamportEventExt(int externalTimestamp, int externalId);
-int getTimestamp(int id);
+int getTimestampOf(int id);
+void finalizeLamport();
 
 #endif
